@@ -1,14 +1,9 @@
 #define MQTT_MAX_PACKET_SIZE 1024
 
 #include "Donald_OnOffSensor.h"
-#include "esp_timer.h"
 #include "esp_system.h"
-#include "nvs_flash.h"
-#include "esp_event.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "freertos/semphr.h"
-#include "freertos/queue.h"
 #include "esp_log.h"
 static const char *TAG = "donald_onoffsensor";
 
@@ -83,10 +78,8 @@ void DonaldOnOffSensorCollection::GPIOTask(void* parameter)
 		DonaldOnOffSensor* s;
         if (xQueueReceive(gpio_evt_queue, &s, portMAX_DELAY)) 
 		{
-		 	// PublishSensor(*s);
 			if(callback)
 			{
-				int pinNumber = s->pin;
 				bool measuredSensorLevel = gpio_get_level(s->pin); // read the actual current logic level
 
 				if ( measuredSensorLevel != s->state)

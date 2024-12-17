@@ -2,9 +2,10 @@
   #define DONALD_ONOFFSENSOR_H
 #include <string>
 #include <vector>
-#include <esp_event.h>
-#include "esp_timer.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "driver/gpio.h"
+#include "hal/gpio_types.h" // for gpio_num_t
 
 using namespace std;
 
