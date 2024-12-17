@@ -1,0 +1,3 @@
+version: "0.0.1"
+description: "ESP32 IDF component implementing a simple GPIO on off sensor"
+license: "MIT" 
