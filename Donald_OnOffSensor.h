@@ -8,33 +8,35 @@
 #include "hal/gpio_types.h" // for gpio_num_t
 
 using namespace std;
-
-struct DonaldOnOffSensor
+namespace Glengyle
 {
-  DonaldOnOffSensor(unsigned short pin) : pin((gpio_num_t)pin), state(true ){;}
-  string SensorStateAsString(){return state ? "true" : "false";}
-  gpio_num_t pin;
-  bool state;
-};
+  struct OnOffSensor
+  {
+    OnOffSensor(unsigned short pin) : pin((gpio_num_t)pin), state(true ){;}
+    string SensorStateAsString(){return state ? "true" : "false";}
+    gpio_num_t pin;
+    bool state;
+  };
 
-typedef  void (*sensorEventCallback)( DonaldOnOffSensor& onOffSensor);
+  typedef  void (*sensorEventCallback)( OnOffSensor& onOffSensor);
 
-class DonaldOnOffSensorCollection
-{
-  public:
+  class OnOffSensorCollection
+  {
+    public:
 
-    DonaldOnOffSensorCollection(vector<DonaldOnOffSensor> pins, gpio_pull_mode_t pullMode = GPIO_PULLUP_ONLY);
-   ~DonaldOnOffSensorCollection();
+      OnOffSensorCollection(vector<OnOffSensor> pins, gpio_pull_mode_t pullMode = GPIO_PULLUP_ONLY);
+    ~OnOffSensorCollection();
 
-    void RegisterSensorEventCallback(sensorEventCallback callback);
-	
-  private:
-	  void SetupGPIOs(gpio_pull_mode_t pullMode);
+      void RegisterSensorEventCallback(sensorEventCallback callback);
+    
+    private:
+      void SetupGPIOs(gpio_pull_mode_t pullMode);
 
-	  static void GPIOTask(void* parameter);
+      static void GPIOTask(void* parameter);
 
-    vector<DonaldOnOffSensor> sensorGPIOPins;
-    TaskHandle_t gpioTask;
-    static sensorEventCallback callback;
-};
+      vector<OnOffSensor> sensorGPIOPins;
+      TaskHandle_t gpioTask;
+      static sensorEventCallback callback;
+  };
+}
 #endif

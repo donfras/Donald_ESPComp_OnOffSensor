@@ -12,18 +12,18 @@ static QueueHandle_t gpio_evt_queue = NULL;
 
 static void IRAM_ATTR gpio_isr_handler(void* arg)
 {
-    DonaldOnOffSensor* s = (DonaldOnOffSensor*)arg;
+    Glengyle::OnOffSensor* s = (Glengyle::OnOffSensor*)arg;
     xQueueSendFromISR(gpio_evt_queue, &s, NULL);
 }
-sensorEventCallback DonaldOnOffSensorCollection::callback = 0;
+Glengyle::sensorEventCallback Glengyle::OnOffSensorCollection::callback = 0;
 
-DonaldOnOffSensorCollection::DonaldOnOffSensorCollection(std::vector<DonaldOnOffSensor> pins, gpio_pull_mode_t pullMode)
+Glengyle::OnOffSensorCollection::OnOffSensorCollection(std::vector<OnOffSensor> pins, gpio_pull_mode_t pullMode)
 							: sensorGPIOPins(pins)
 {
-	ESP_LOGI(TAG, "DonaldOnOffSensorCollection constructor entry");
+	ESP_LOGI(TAG, "OnOffSensorCollection constructor entry");
 	
     // Create a queue to handle gpio events from the gpio interrupt service routine
-    gpio_evt_queue = xQueueCreate(10, sizeof(DonaldOnOffSensor*));
+    gpio_evt_queue = xQueueCreate(10, sizeof(OnOffSensor*));
 	
     SetupGPIOs(pullMode);
 	
@@ -37,13 +37,13 @@ DonaldOnOffSensorCollection::DonaldOnOffSensorCollection(std::vector<DonaldOnOff
 	);
 }
 
-DonaldOnOffSensorCollection::~DonaldOnOffSensorCollection()
+Glengyle::OnOffSensorCollection::~OnOffSensorCollection()
 {
 	callback = 0; // Prevent any further callbacks
 	vTaskDelete(gpioTask);
 }
 
-void DonaldOnOffSensorCollection::SetupGPIOs(gpio_pull_mode_t pullMode)
+void Glengyle::OnOffSensorCollection::SetupGPIOs(gpio_pull_mode_t pullMode)
 {  
 	ESP_LOGI(TAG, "SetupGPIOs");
 	
@@ -63,7 +63,7 @@ void DonaldOnOffSensorCollection::SetupGPIOs(gpio_pull_mode_t pullMode)
 	}
 }
 
-void DonaldOnOffSensorCollection::RegisterSensorEventCallback(sensorEventCallback callback)
+void Glengyle::OnOffSensorCollection::RegisterSensorEventCallback(sensorEventCallback callback)
 {
 	this->callback = callback;
 }
@@ -71,11 +71,11 @@ void DonaldOnOffSensorCollection::RegisterSensorEventCallback(sensorEventCallbac
 // Reads the gpio event queue for any sensor pin level changes.
 // Calls any configured callback if the actual pin logic level is different from the last recorded pin
 // level - acts as a debounce.
-void DonaldOnOffSensorCollection::GPIOTask(void* parameter)
+void Glengyle::OnOffSensorCollection::GPIOTask(void* parameter)
 {
 	while (1) 
 	{ 
-		DonaldOnOffSensor* s;
+		OnOffSensor* s;
         if (xQueueReceive(gpio_evt_queue, &s, portMAX_DELAY)) 
 		{
 			if(callback)
