@@ -23,13 +23,13 @@ class DonaldOnOffSensorCollection
 {
   public:
 
-    DonaldOnOffSensorCollection(vector<DonaldOnOffSensor> pins);
+    DonaldOnOffSensorCollection(vector<DonaldOnOffSensor> pins, gpio_pull_mode_t pullMode = GPIO_PULLUP_ONLY);
    ~DonaldOnOffSensorCollection();
 
     void RegisterSensorEventCallback(sensorEventCallback callback);
 	
   private:
-	  void SetupGPIOs(void);
+	  void SetupGPIOs(gpio_pull_mode_t pullMode);
 
 	  static void GPIOTask(void* parameter);
 

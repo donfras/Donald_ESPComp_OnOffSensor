@@ -17,7 +17,7 @@ static void IRAM_ATTR gpio_isr_handler(void* arg)
 }
 sensorEventCallback DonaldOnOffSensorCollection::callback = 0;
 
-DonaldOnOffSensorCollection::DonaldOnOffSensorCollection(std::vector<DonaldOnOffSensor> pins) 
+DonaldOnOffSensorCollection::DonaldOnOffSensorCollection(std::vector<DonaldOnOffSensor> pins, gpio_pull_mode_t pullMode)
 							: sensorGPIOPins(pins)
 {
 	ESP_LOGI(TAG, "DonaldOnOffSensorCollection constructor entry");
@@ -25,7 +25,7 @@ DonaldOnOffSensorCollection::DonaldOnOffSensorCollection(std::vector<DonaldOnOff
     // Create a queue to handle gpio events from the gpio interrupt service routine
     gpio_evt_queue = xQueueCreate(10, sizeof(DonaldOnOffSensor*));
 	
-    SetupGPIOs();
+    SetupGPIOs(pullMode);
 	
 	xTaskCreate(
 		GPIOTask,    // Function that should be called
@@ -43,7 +43,7 @@ DonaldOnOffSensorCollection::~DonaldOnOffSensorCollection()
 	vTaskDelete(gpioTask);
 }
 
-void DonaldOnOffSensorCollection::SetupGPIOs(void)
+void DonaldOnOffSensorCollection::SetupGPIOs(gpio_pull_mode_t pullMode)
 {  
 	ESP_LOGI(TAG, "SetupGPIOs");
 	
@@ -57,7 +57,7 @@ void DonaldOnOffSensorCollection::SetupGPIOs(void)
 	  ESP_LOGI(TAG, "SetupGPIOs: adding pin %d", (int)s.pin);
 	  gpio_set_direction(s.pin, GPIO_MODE_INPUT);
 	  gpio_set_intr_type(s.pin, GPIO_INTR_ANYEDGE);	  
-	  gpio_set_pull_mode(s.pin, GPIO_PULLUP_ONLY);
+	  gpio_set_pull_mode(s.pin, pullMode);
       gpio_isr_handler_add(s.pin, gpio_isr_handler, (void*)&s);
 	  gpio_intr_enable(s.pin);
 	}
